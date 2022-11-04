@@ -1,13 +1,12 @@
 import logging
-
-from log import get_logger, add_logger_argparse_arguments
+from .log import get_logger, add_logger_argparse_arguments
 from datetime import datetime
 import argparse
 import os
 import tarfile
 
 
-def archive_and_compress(source, output_directory, logger=logging.getLogger(__name__).setLevel(logging.NOTSET)):
+def archive_and_compress(source, output_directory, logger=None):
     """
     Archive and compress a directory or file.
 
@@ -20,6 +19,11 @@ def archive_and_compress(source, output_directory, logger=logging.getLogger(__na
     Returns:
         None
     """
+
+    if logger is None:
+        logger = logging.getLogger()
+        logger.setLevel(logging.NOTSET)
+
     datetime_now = datetime.now()
     datetime_string = datetime_now.strftime("%Y%m%d-%H%M%S")
     complete_output_path = f"{output_directory}/{datetime_string}-{os.path.basename(source)}.tar.gz"
@@ -33,8 +37,10 @@ def archive_and_compress(source, output_directory, logger=logging.getLogger(__na
     else:
         logger.info(f"Success in archiving and compressing {source} to {complete_output_path}")
 
+    return f"{datetime_string}-{os.path.basename(source)}.tar.gz"
 
-def extract(filename, output_directory, logger=logging.getLogger(__name__).setLevel(logging. NOTSET)):
+
+def extract(filename, output_directory, logger=None):
     """
     Extract an archived and compressed file.
 
@@ -47,6 +53,11 @@ def extract(filename, output_directory, logger=logging.getLogger(__name__).setLe
     Returns:
         None
     """
+
+    if logger is None:
+        logger = logging.getLogger()
+        logger.setLevel(logging.NOTSET)
+
     logger.info(f"Attempting to extract {filename} to {output_directory}")
     try:
         with tarfile.open(filename) as tar:
@@ -58,6 +69,13 @@ def extract(filename, output_directory, logger=logging.getLogger(__name__).setLe
 
 
 def get_tar_arg_parser():
+    """
+    Create the argument parser for archiving, compressing and extracting .tar.gz files.
+
+    Returns:
+        parser  (argparse.parser)
+    """
+
     parser = argparse.ArgumentParser()
 
     action_group = parser.add_mutually_exclusive_group(required=True)
