@@ -31,7 +31,6 @@ def get_logger(arg_log_level, args_log_file, arg_enable_file_logging, arg_disabl
     if arg_enable_file_logging:
         if args_log_file is not None:
             log_file = Path(args_log_file)
-            log_file_parent_directory = log_file.parent.absolute()
             if not os.path.isfile(log_file):
                 print(f"ERROR: Log file specified '--log_file {log_file}' not found!")
                 exit(1)
