@@ -1,6 +1,6 @@
 import logging
 
-from log import get_logger
+from log import get_logger, add_logger_argparse_arguments
 from datetime import datetime
 import argparse
 import os
@@ -57,7 +57,7 @@ def extract(filename, output_directory, logger=logging.getLogger(__name__).setLe
         logger.info(f"Success in extracting {filename} to {output_directory}")
 
 
-def get_parser():
+def get_tar_arg_parser():
     parser = argparse.ArgumentParser()
 
     action_group = parser.add_mutually_exclusive_group(required=True)
@@ -85,36 +85,15 @@ def get_parser():
         required=True
     )
 
-    parser.add_argument(
-        '--disable_file_logging',
-        help="Completely disables the logging to a log file",
-        action="store_true"
-    )
-
-    parser.add_argument(
-        '--disable_console_logging',
-        help="Disable the logging to console except for ERRORS. This will overwrite the --log_level argument",
-        action="store_true"
-    )
-
-    parser.add_argument(
-        '--log_file',
-        help="Specify the path to the log file you want to write to"
-    )
-
-    parser.add_argument(
-        '--log_level',
-        help="Specify the log level to use from: DEBUG|INFO|WARNING|ERROR|CRITICAL. Default logging level is INFO"
-    )
-
     return parser
 
 
 if __name__ == "__main__":
-    parser = get_parser()
+    parser = get_tar_arg_parser()
+    parser = add_logger_argparse_arguments(parser)
     args = parser.parse_args()
 
-    logger = get_logger(args.log_level, args.log_file, args.disable_file_logging, args.disable_console_logging)
+    logger = get_logger(args.log_level, args.log_file, args.enable_file_logging, args.disable_console_logging)
 
     if args.archive_and_compress and not args.extract:
         archive_and_compress(args.input, args.output, logger)

@@ -2,15 +2,15 @@ import logging
 import os
 from pathlib import Path
 
-def get_logger(arg_log_level, args_log_file, arg_disable_file_logging, arg_disable_console_logging):
+def get_logger(arg_log_level, args_log_file, arg_enable_file_logging, arg_disable_console_logging):
     """
     Creates the logger.
 
     Parameters:
-        arg_log_level                   (string)
-        args_log_file                   (string)
-        arg_disable_file_logging        (bool)
-        arg_disable_console_logging    (bool)
+        arg_log_level                   (string)    Log level from arguments
+        args_log_file                   (string)    Path to log file from arguments
+        arg_enable_file_logging         (bool)      If we should log to a file
+        arg_disable_console_logging     (bool)      If we shouldn't log to console
 
     Returns:
         logger (logging.logger)
@@ -28,7 +28,7 @@ def get_logger(arg_log_level, args_log_file, arg_disable_file_logging, arg_disab
     logger.setLevel(log_level)
     log_format = logging.Formatter("%(asctime)s %(filename)s -> %(levelname)s: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
-    if not arg_disable_file_logging:
+    if arg_enable_file_logging:
         if args_log_file is not None:
             log_file = Path(args_log_file)
             log_file_parent_directory = log_file.parent.absolute()
@@ -53,6 +53,42 @@ def get_logger(arg_log_level, args_log_file, arg_disable_file_logging, arg_disab
     logger.addHandler(console_logger_stream)
 
     return logger
+
+
+def add_logger_argparse_arguments(parser):
+    """
+    Adds the arguments to be parsed by argparse
+
+    Parameters:
+        parser  (argparse.parser)   Parser to add the arguments to
+
+    Returns:
+        parser  (argparse.parser)
+    """
+    parser.add_argument(
+        '--enable_file_logging',
+        help="Enables the logging to a log file",
+        action="store_true"
+    )
+
+    parser.add_argument(
+        '--disable_console_logging',
+        help="Disable the logging to console except for ERRORS. This will overwrite the --log_level argument",
+        action="store_true"
+    )
+
+    parser.add_argument(
+        '--log_file',
+        help="Specify the path to the log file you want to write to"
+    )
+
+    parser.add_argument(
+        '--log_level',
+        help="Specify the log level to use from: DEBUG|INFO|WARNING|ERROR|CRITICAL. Default logging level is INFO"
+    )
+
+    return parser
+
 
 
 if __name__ == "__main__":
